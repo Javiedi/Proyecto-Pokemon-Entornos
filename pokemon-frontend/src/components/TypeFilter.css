@@ -1,0 +1,52 @@
+.type-filter-container {
+  margin-bottom: 2rem;
+}
+
+.filter-title {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.type-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filter-btn {
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.filter-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.filter-btn.active {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-md);
+}
+
+.filter-btn:not(.active):not(:hover) {
+  opacity: 0.8;
+}
+
+/* Base style for the 'All' button when active */
+.filter-btn.active:first-child {
+  background-color: var(--color-primary);
+  color: white;
+}
