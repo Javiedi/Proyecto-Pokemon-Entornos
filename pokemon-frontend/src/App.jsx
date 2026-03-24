@@ -3,8 +3,12 @@ import Header from './components/Header';
 import TypeFilter from './components/TypeFilter';
 import PokemonGrid from './components/PokemonGrid';
 import PokemonModal from './components/PokemonModal';
+import HallOfFame from './components/HallOfFame';
+import SearchBenchmark from './components/SearchBenchmark';
+import './App.css';
 
 function App() {
+  const [activeTab, setActiveTab] = useState('pokedex');
   const [pokemons, setPokemons] = useState([]);
   const [types, setTypes] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -16,7 +20,6 @@ function App() {
   const [selectedPokemon, setSelectedPokemon] = useState(null);
 
   useEffect(() => {
-    // Fetch all types exactly once
     const fetchTypes = async () => {
       try {
         const res = await fetch('http://localhost:3001/api/types');
@@ -30,7 +33,6 @@ function App() {
     fetchTypes();
   }, []);
 
-  // Reset page when filters change
   useEffect(() => {
     setPage(1);
     setPokemons([]);
@@ -38,7 +40,8 @@ function App() {
   }, [searchQuery, selectedType]);
 
   useEffect(() => {
-    // Fetch pokemons based on filters and page
+    if (activeTab !== 'pokedex') return;
+
     const fetchPokemons = async () => {
       setLoading(true);
       setError(null);
@@ -66,58 +69,93 @@ function App() {
 
     const timeoutId = setTimeout(() => {
       fetchPokemons();
-    }, page === 1 ? 300 : 0); // Only debounce on first page search
+    }, page === 1 ? 300 : 0);
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, selectedType, page]);
+  }, [searchQuery, selectedType, page, activeTab]);
 
   return (
     <div className="container">
       <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+
+      {/* Navigation Tabs */}
+      <nav className="tab-navigation glass-panel" id="main-navigation">
+        <button
+          className={`tab-button ${activeTab === 'pokedex' ? 'active' : ''}`}
+          onClick={() => setActiveTab('pokedex')}
+          id="tab-pokedex"
+        >
+          <span className="tab-icon">📱</span>
+          Pokédex
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'hallOfFame' ? 'active' : ''}`}
+          onClick={() => setActiveTab('hallOfFame')}
+          id="tab-hall-of-fame"
+        >
+          <span className="tab-icon">🏆</span>
+          Salón de la Fama
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'benchmark' ? 'active' : ''}`}
+          onClick={() => setActiveTab('benchmark')}
+          id="tab-benchmark"
+        >
+          <span className="tab-icon">⚡</span>
+          Búsqueda Indexada
+        </button>
+      </nav>
       
       <main>
-        <TypeFilter 
-          types={types} 
-          selectedType={selectedType} 
-          onSelectType={setSelectedType} 
-        />
-        
-        {error ? (
-          <div className="empty-state glass-panel">
-            <h3 style={{color: 'var(--color-primary)'}}>Connection Error</h3>
-            <p>{error}</p>
-          </div>
-        ) : (
+        {activeTab === 'pokedex' && (
           <>
-            <PokemonGrid 
-              pokemons={pokemons} 
-              loading={loading && page === 1} 
-              onPokemonClick={setSelectedPokemon} 
+            <TypeFilter 
+              types={types} 
+              selectedType={selectedType} 
+              onSelectType={setSelectedType} 
             />
             
-            {hasMore && (
-              <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
-                <button 
-                  className={`glass-panel ${loading ? 'loading' : ''}`}
-                  onClick={() => setPage(prev => prev + 1)}
-                  disabled={loading}
-                  style={{
-                    padding: '1rem 2rem',
-                    cursor: 'pointer',
-                    background: 'var(--color-primary)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '12px',
-                    fontWeight: 'bold',
-                    transition: 'transform 0.2s'
-                  }}
-                >
-                  {loading ? 'Cargando...' : 'Cargar más Pokémon'}
-                </button>
+            {error ? (
+              <div className="empty-state glass-panel">
+                <h3 style={{color: 'var(--color-primary)'}}>Connection Error</h3>
+                <p>{error}</p>
               </div>
+            ) : (
+              <>
+                <PokemonGrid 
+                  pokemons={pokemons} 
+                  loading={loading && page === 1} 
+                  onPokemonClick={setSelectedPokemon} 
+                />
+                
+                {hasMore && (
+                  <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}>
+                    <button 
+                      className={`glass-panel ${loading ? 'loading' : ''}`}
+                      onClick={() => setPage(prev => prev + 1)}
+                      disabled={loading}
+                      style={{
+                        padding: '1rem 2rem',
+                        cursor: 'pointer',
+                        background: 'var(--color-primary)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '12px',
+                        fontWeight: 'bold',
+                        transition: 'transform 0.2s'
+                      }}
+                    >
+                      {loading ? 'Cargando...' : 'Cargar más Pokémon'}
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
+
+        {activeTab === 'hallOfFame' && <HallOfFame />}
+        {activeTab === 'benchmark' && <SearchBenchmark />}
       </main>
 
       {selectedPokemon && (
